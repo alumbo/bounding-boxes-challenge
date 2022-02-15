@@ -8,6 +8,8 @@
     "email": "matthieu.chavigny@gmail.com"
   },
   "devDependencies": {
+    "@types/react": "^17.0.39",
+    "@types/react-dom": "^17.0.11",
     "parcel": "^2.3.1"
   },
   "dependencies": {
