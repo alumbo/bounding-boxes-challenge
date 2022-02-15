@@ -1,0 +1,17 @@
+{
+  "name": "bounding-boxes-challenge",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "author": {
+    "name": "Matthieu Chavigny",
+    "email": "matthieu.chavigny@gmail.com"
+  },
+  "devDependencies": {
+    "parcel": "^2.3.1"
+  },
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
+}
