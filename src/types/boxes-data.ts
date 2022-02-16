@@ -17,10 +17,11 @@ export interface ProcessedAppearanceType {
   startTime: number;
   endTime: number;
   objectClass: ObjectClassType | string;
+  id: string;
 }
 enum ObjectClassType {
-  OBJECT_CLASS_PERSON = "OBJECT_CLASS_PERSON",
-  OBJECT_CLASS_CAR = "OBJECT_CLASS_CAR",
+  OBJECT_CLASS_PERSON = 'OBJECT_CLASS_PERSON',
+  OBJECT_CLASS_CAR = 'OBJECT_CLASS_CAR'
 }
 interface BoxesObjectType {
   id: string;
