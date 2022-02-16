@@ -31,7 +31,9 @@ export function App() {
     ProcessedAppearanceType[]
   >(getProcessedAppearances, []);
   useEffect(() => {
-    setVideoElement(videoRef?.current);
+    videoRef?.current.addEventListener("loadedmetadata", () => {
+      setVideoElement(videoRef?.current);
+    });
   }, [videoRef?.current]);
   return (
     <div

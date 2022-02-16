@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import * as d3 from "d3";
 import { ProcessedAppearanceType } from "./types/boxes-data";
 
@@ -8,6 +8,8 @@ interface Props {
 }
 
 export function Overlay({ videoElement, appearances }: Props) {
+  const [canvasContext, setCanvasContext] =
+    useState<CanvasRenderingContext2D>();
   const getVisibleAppearances = (): ProcessedAppearanceType[] => {
     const currentTimeMs = videoElement.currentTime * 1000;
     return appearances.filter(
@@ -16,17 +18,46 @@ export function Overlay({ videoElement, appearances }: Props) {
         appearance.endTime > currentTimeMs
     );
   };
+
   const onTimeUpdate = (): void => {
     const visibleAppearances = getVisibleAppearances();
     console.log(visibleAppearances.length);
+    canvasContext.clearRect(
+      0,
+      0,
+      videoElement.videoWidth,
+      videoElement.videoHeight
+    );
+    visibleAppearances.forEach((appearance) => {
+      appearance.boxes.forEach((box) => {
+        const tl = box.box.topLeft;
+        const br = box.box.bottomRight;
+        canvasContext.strokeRect(tl.x, tl.y, br.x - tl.x, br.y - tl.y);
+      });
+    });
   };
 
   useEffect(() => {
-    videoElement.addEventListener("timeupdate", onTimeUpdate);
-    return () => {
-      videoElement.removeEventListener("timeupdate", onTimeUpdate);
-    };
-  }, [videoElement]);
+    const d3Container = d3.select(".d3-container");
+    console.log(videoElement);
+    const canvas = d3Container
+      .append("canvas")
+      .attr("width", videoElement.videoWidth)
+      .attr("height", videoElement.videoHeight);
+    const context: CanvasRenderingContext2D = canvas.node().getContext("2d");
+    context.lineWidth = 2;
+    context.strokeStyle = "#dcb972";
+    setCanvasContext(context);
+  }, []);
+
+  useEffect(() => {
+    if (canvasContext) {
+      videoElement.addEventListener("timeupdate", onTimeUpdate);
+      return () => {
+        videoElement.removeEventListener("timeupdate", onTimeUpdate);
+      };
+    }
+  }, [videoElement, canvasContext]);
 
   const drawPolygon = (box) => {
     const tl = box.topLeft;
