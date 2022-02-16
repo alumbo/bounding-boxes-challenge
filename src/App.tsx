@@ -1,19 +1,38 @@
-import React, { RefObject, useEffect, useState } from "react";
+import React, { RefObject, useEffect, useMemo, useState } from "react";
 import PorsheVideo from "url:./assets/video/porshe.mp4";
-import Data from "./assets/data/porshe-video-object-detections.json";
+import BoxesData from "./assets/data/porshe-video-object-detections.json";
 import { Overlay } from "./Overlay";
+import {
+  AppearanceType,
+  BoxesDataType,
+  ProcessedAppearanceType,
+} from "./types/boxes-data";
 
 export function App() {
-  const videoSize = { width: 1280, height: 723 };
   const videoRef: RefObject<HTMLVideoElement> = React.createRef();
-  const [currentTime, setCurrentTime] = useState(0);
-  useEffect(() => {
-    const video = videoRef?.current;
-    video.addEventListener("timeupdate", () => {
-      setCurrentTime(video.currentTime);
+  const [videoElement, setVideoElement] = useState<HTMLVideoElement>();
+
+  const getProcessedAppearances = (): ProcessedAppearanceType[] => {
+    const boxesData: BoxesDataType = BoxesData.data;
+    const appearances: ProcessedAppearanceType[] = [];
+    boxesData.analysis.objects.map((object) => {
+      object.appearances.map((appearance: AppearanceType) => {
+        appearances.push({
+          ...appearance,
+          objectClass: object.objectClass,
+          startTime: appearance.boxes.at(0).time,
+          endTime: appearance.boxes.at(-1).time,
+        });
+      });
     });
+    return appearances;
+  };
+  const processedAppearanceType: ProcessedAppearanceType[] = useMemo<
+    ProcessedAppearanceType[]
+  >(getProcessedAppearances, []);
+  useEffect(() => {
+    setVideoElement(videoRef?.current);
   }, [videoRef?.current]);
-  console.log(Data.data);
   return (
     <div
       style={{
@@ -21,11 +40,12 @@ export function App() {
       }}
     >
       <video ref={videoRef} controls autoPlay loop src={PorsheVideo} />
-      <Overlay
-        videoSize={videoSize}
-        data={Data.data}
-        currentTime={currentTime}
-      />
+      {videoElement ? (
+        <Overlay
+          videoElement={videoElement}
+          appearances={processedAppearanceType}
+        />
+      ) : null}
     </div>
   );
 }
